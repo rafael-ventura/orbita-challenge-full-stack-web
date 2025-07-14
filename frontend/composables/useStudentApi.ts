@@ -35,7 +35,7 @@ export function useStudentApi() {
         }
     };
 
-    const updateStudent = async (id: number, student: Partial<Student>) => {
+    const updateStudent = async (id: string, student: Partial<Student>) => {
         try {
             return await $fetch(`${apiBaseUrl}/students/${id}`, {
                 method: "PUT",
@@ -47,7 +47,7 @@ export function useStudentApi() {
         }
     };
 
-    const deleteStudent = async (id: number) => {
+    const deleteStudent = async (id: string) => {
         try {
             return await $fetch(`${apiBaseUrl}/students/${id}`, {method: "DELETE"});
         } catch (err) {
