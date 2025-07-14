@@ -1,0 +1,31 @@
+$primary-color: #c8102e;
+$secondary-color: #e63946;
+$red-light: #ff8a80;
+$grey-light: #f5f5f5;
+$red-primary: #b71c1c;
+$red-dark: #9a0007;
+$white-text: #ffffff;
+
+:export {
+  primaryColor: $primary-color;
+  secondaryColor: $secondary-color;
+  greyLight: $grey-light;
+  redPrimary: $red-primary;
+  redDark: $red-dark;
+  whiteText: $white-text;
+}
+
+.v-btn {
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.v-card {
+  border-radius: 10px;
+}
+
+.v-text-field {
+  background: white;
+  border-radius: 8px;
+}
+

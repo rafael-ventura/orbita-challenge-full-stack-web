@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>StudentManagement.API</name>
+    </assembly>
+    <members>
+        <member name="M:StudentManagement.API.Controllers.Student.StudentController.GetAll">
+            <summary>
+            Get all students
+            </summary>
+            <returns>List of all students</returns>
+        </member>
+        <member name="M:StudentManagement.API.Controllers.Student.StudentController.GetById(System.Guid)">
+            <summary>
+            Get student by ID
+            </summary>
+            <param name="id">Student ID</param>
+            <returns>Student information</returns>
+        </member>
+        <member name="M:StudentManagement.API.Controllers.Student.StudentController.Create(StudentManagement.Application.DTOs.CreateStudentDto)">
+            <summary>
+            Create a new student
+            </summary>
+            <param name="createStudentDto">Student data</param>
+            <returns>Created student</returns>
+        </member>
+        <member name="M:StudentManagement.API.Controllers.Student.StudentController.Update(System.Guid,StudentManagement.Application.DTOs.UpdateStudentDto)">
+            <summary>
+            Update student information
+            </summary>
+            <param name="id">Student ID</param>
+            <param name="updateStudentDto">Updated student data</param>
+            <returns>Updated student</returns>
+        </member>
+        <member name="M:StudentManagement.API.Controllers.Student.StudentController.Delete(System.Guid)">
+            <summary>
+            Delete a student
+            </summary>
+            <param name="id">Student ID</param>
+            <returns>No content</returns>
+        </member>
+    </members>
+</doc>

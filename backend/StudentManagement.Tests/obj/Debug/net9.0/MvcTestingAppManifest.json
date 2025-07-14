@@ -1,0 +1,6 @@
+{
+  "StudentManagement.API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null": "R:\\Dev\\challenge-net-aeducacao\\backend\\StudentManagement.API",
+  "StudentManagement.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null": "R:\\Dev\\challenge-net-aeducacao\\backend\\StudentManagement.Application",
+  "StudentManagement.Domain, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null": "R:\\Dev\\challenge-net-aeducacao\\backend\\StudentManagement.Domain",
+  "StudentManagement.Infrastructure, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null": "R:\\Dev\\challenge-net-aeducacao\\backend\\StudentManagement.Infrastructure"
+}

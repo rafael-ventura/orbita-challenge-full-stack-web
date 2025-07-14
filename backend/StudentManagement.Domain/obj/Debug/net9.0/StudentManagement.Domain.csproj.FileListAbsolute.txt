@@ -1,0 +1,11 @@
+R:\Dev\challenge-net-aeducacao\backend\StudentManagement.Domain\obj\Debug\net9.0\StudentManagement.Domain.GeneratedMSBuildEditorConfig.editorconfig
+R:\Dev\challenge-net-aeducacao\backend\StudentManagement.Domain\obj\Debug\net9.0\StudentManagement.Domain.AssemblyInfoInputs.cache
+R:\Dev\challenge-net-aeducacao\backend\StudentManagement.Domain\obj\Debug\net9.0\StudentManagement.Domain.AssemblyInfo.cs
+R:\Dev\challenge-net-aeducacao\backend\StudentManagement.Domain\obj\Debug\net9.0\StudentManagement.Domain.csproj.CoreCompileInputs.cache
+R:\Dev\challenge-net-aeducacao\backend\StudentManagement.Domain\bin\Debug\net9.0\StudentManagement.Domain.deps.json
+R:\Dev\challenge-net-aeducacao\backend\StudentManagement.Domain\bin\Debug\net9.0\StudentManagement.Domain.dll
+R:\Dev\challenge-net-aeducacao\backend\StudentManagement.Domain\bin\Debug\net9.0\StudentManagement.Domain.pdb
+R:\Dev\challenge-net-aeducacao\backend\StudentManagement.Domain\obj\Debug\net9.0\StudentManagement.Domain.dll
+R:\Dev\challenge-net-aeducacao\backend\StudentManagement.Domain\obj\Debug\net9.0\refint\StudentManagement.Domain.dll
+R:\Dev\challenge-net-aeducacao\backend\StudentManagement.Domain\obj\Debug\net9.0\StudentManagement.Domain.pdb
+R:\Dev\challenge-net-aeducacao\backend\StudentManagement.Domain\obj\Debug\net9.0\ref\StudentManagement.Domain.dll

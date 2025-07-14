@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "qwbyzzZ3gRs=",
+  "success": true,
+  "projectFilePath": "R:\\Dev\\challenge-net-aeducacao\\backend\\StudentManagement.Application\\StudentManagement.Application.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\raf4a\\.nuget\\packages\\microsoft.extensions.dependencyinjection.abstractions\\9.0.0\\microsoft.extensions.dependencyinjection.abstractions.9.0.0.nupkg.sha512"
+  ],
+  "logs": []
+}

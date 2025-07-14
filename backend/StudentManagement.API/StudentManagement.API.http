@@ -1,0 +1,42 @@
+@StudentManagement.API_HostAddress = http://localhost:5264
+
+### Get all students
+GET {{StudentManagement.API_HostAddress}}/api/students
+Accept: application/json
+
+###
+
+### Get student by ID
+GET {{StudentManagement.API_HostAddress}}/api/students/{{studentId}}
+Accept: application/json
+
+###
+
+### Create a new student
+POST {{StudentManagement.API_HostAddress}}/api/students
+Content-Type: application/json
+
+{
+  "name": "John Doe",
+  "email": "john.doe@example.com",
+  "ra": "2024001",
+  "cpf": "12345678901"
+}
+
+###
+
+### Update student
+PUT {{StudentManagement.API_HostAddress}}/api/students/{{studentId}}
+Content-Type: application/json
+
+{
+  "name": "John Updated",
+  "email": "john.updated@example.com"
+}
+
+###
+
+### Delete student
+DELETE {{StudentManagement.API_HostAddress}}/api/students/{{studentId}}
+
+###
