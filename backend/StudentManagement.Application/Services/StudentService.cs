@@ -30,7 +30,6 @@ public class StudentService : IStudentService
 
     public async Task<StudentDto> CreateAsync(CreateStudentDto createStudentDto)
     {
-        // Business validations
         await ValidateStudentDataForCreation(createStudentDto);
 
         var student = new Student

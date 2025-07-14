@@ -1,9 +1,10 @@
 using System.Net.Http;
 using System.Threading.Tasks;
+using StudentManagement.Application.Interfaces;
 
 namespace StudentManagement.Application.Helpers;
 
-public class ExternalCpfValidator
+public class ExternalCpfValidator : IExternalCpfValidator
 {
     private readonly HttpClient _httpClient;
 
