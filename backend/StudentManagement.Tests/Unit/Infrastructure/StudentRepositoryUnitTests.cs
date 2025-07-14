@@ -7,7 +7,7 @@ using Xunit;
 
 namespace StudentManagement.Tests.Unit.Infrastructure;
 
-public class StudentRepositoryUnitTests
+public class StudentRepositoryUnitTests : IDisposable
 {
     private readonly ApplicationDbContext _context;
     private readonly StudentRepository _repository;

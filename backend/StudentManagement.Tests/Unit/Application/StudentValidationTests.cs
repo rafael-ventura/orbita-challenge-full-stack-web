@@ -10,10 +10,10 @@ public class StudentValidationTests
     public void IsValidCPF_WithValidCPF_ShouldReturnTrue()
     {
         // Arrange
-        var validCPF = "52998224725";
+        const string validCpf = "52998224725";
 
         // Act
-        var result = StudentDataHelper.IsValidCPF(validCPF);
+        var result = StudentDataHelper.IsValidCPF(validCpf);
 
         // Assert
         result.Should().BeTrue();
@@ -23,10 +23,10 @@ public class StudentValidationTests
     public void IsValidCPF_WithInvalidCPF_ShouldReturnFalse()
     {
         // Arrange
-        var invalidCPF = "12345678901";
+        const string invalidCpf = "12345678901";
 
         // Act
-        var result = StudentDataHelper.IsValidCPF(invalidCPF);
+        var result = StudentDataHelper.IsValidCPF(invalidCpf);
 
         // Assert
         result.Should().BeFalse();
@@ -36,10 +36,10 @@ public class StudentValidationTests
     public void IsValidCPF_WithFormattedCPF_ShouldReturnTrue()
     {
         // Arrange
-        var formattedCPF = "529.982.247-25";
+        const string formattedCpf = "529.982.247-25";
 
         // Act
-        var result = StudentDataHelper.IsValidCPF(formattedCPF);
+        var result = StudentDataHelper.IsValidCPF(formattedCpf);
 
         // Assert
         result.Should().BeTrue();
@@ -49,10 +49,10 @@ public class StudentValidationTests
     public void IsValidRA_WithValidRA_ShouldReturnTrue()
     {
         // Arrange
-        var validRA = "123456";
+        const string validRa = "123456";
 
         // Act
-        var result = StudentDataHelper.IsValidRA(validRA);
+        var result = StudentDataHelper.IsValidRA(validRa);
 
         // Assert
         result.Should().BeTrue();
@@ -62,10 +62,10 @@ public class StudentValidationTests
     public void IsValidRA_WithShortRA_ShouldReturnFalse()
     {
         // Arrange
-        var shortRA = "12345";
+        const string shortRa = "12345";
 
         // Act
-        var result = StudentDataHelper.IsValidRA(shortRA);
+        var result = StudentDataHelper.IsValidRA(shortRa);
 
         // Assert
         result.Should().BeFalse();
@@ -75,7 +75,7 @@ public class StudentValidationTests
     public void IsValidEmail_WithValidEmail_ShouldReturnTrue()
     {
         // Arrange
-        var validEmail = "test@example.com";
+        const string validEmail = "test@example.com";
 
         // Act
         var result = StudentDataHelper.IsValidEmail(validEmail);
@@ -88,7 +88,7 @@ public class StudentValidationTests
     public void IsValidEmail_WithInvalidEmail_ShouldReturnFalse()
     {
         // Arrange
-        var invalidEmail = "invalid-email";
+        const string invalidEmail = "invalid-email";
 
         // Act
         var result = StudentDataHelper.IsValidEmail(invalidEmail);
