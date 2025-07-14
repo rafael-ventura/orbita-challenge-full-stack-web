@@ -119,9 +119,8 @@ StudentManagement/
 
 ## Error Handling
 
-- **400 Bad Request**: Invalid data
+- **400 Bad Request**: Invalid data or duplicate data (RA, CPF, Email)
 - **404 Not Found**: Student not found
-- **409 Conflict**: Duplicate data (RA, CPF, Email)
 - **500 Internal Server Error**: Internal server error
 
 ## Tests

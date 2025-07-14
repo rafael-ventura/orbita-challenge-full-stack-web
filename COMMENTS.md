@@ -2,7 +2,7 @@
 
 ## Decisão da Arquitetura Utilizada
 
-### Backend (.NET 9 + C#):
+### Backend (.NET 9 + C# + Entity Framework):
 
 A arquitetura segue os princípios da **Clean Architecture**, separando responsabilidades e garantindo modularidade. O projeto está estruturado em 4 camadas principais:
 
@@ -10,6 +10,7 @@ A arquitetura segue os princípios da **Clean Architecture**, separando responsa
 - **Application Layer** (`StudentManagement.Application`): Orquestra os casos de uso, implementa a lógica de negócio, DTOs e serviços.
 - **Infrastructure Layer** (`StudentManagement.Infrastructure`): Implementa acesso a dados, Entity Framework Context, repositórios e configurações.
 - **API Layer** (`StudentManagement.API`): Interface HTTP, controllers, validações, middleware e configurações da aplicação.
+- **Test Layer** (`StudentManagement.Tests`): Contém testes unitários e de integração, utilizando xUnit, Moq e FluentAssertions.
 
 ### Frontend:
 

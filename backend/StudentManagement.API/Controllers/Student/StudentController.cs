@@ -4,14 +4,16 @@ using StudentManagement.Application.Interfaces;
 using StudentManagement.Domain.Exceptions;
 using StudentManagement.API.Validations;
 using StudentManagement.Application.Helpers;
+using Microsoft.AspNetCore.Authorization;
 
 namespace StudentManagement.API.Controllers.Student;
 
+[Authorize]
 [ApiController]
 [Route("api/[controller]")]
 public class StudentController(
     IStudentService studentService, 
-    ExternalCpfValidator externalCpfValidator,
+    StudentRequestValidator studentRequestValidator,
     ILogger<StudentController> logger) : ControllerBase
 {
     /// <summary>
@@ -23,16 +25,8 @@ public class StudentController(
     [ProducesResponseType(500)]
     public async Task<ActionResult<IEnumerable<StudentDto>>> GetAll()
     {
-        try
-        {
-            var students = await studentService.GetAllAsync();
-            return Ok(students);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Error getting all students");
-            return StatusCode(500, new { message = "Internal server error" });
-        }
+        var students = await studentService.GetAllAsync();
+        return Ok(students);
     }
 
     /// <summary>
@@ -46,16 +40,8 @@ public class StudentController(
     [ProducesResponseType(500)]
     public async Task<ActionResult<StudentDto>> GetById(Guid id)
     {
-        try
-        {
-            var student = await studentService.GetByIdAsync(id);
-            return student != null ? Ok(student) : NotFound(new { message = $"Student with ID {id} not found" });
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Error getting student with ID {Id}", id);
-            return StatusCode(500, new { message = "Internal server error" });
-        }
+        var student = await studentService.GetByIdAsync(id);
+        return student != null ? Ok(student) : NotFound(new { message = $"Student with ID {id} not found" });
     }
 
     /// <summary>
@@ -66,32 +52,12 @@ public class StudentController(
     [HttpPost]
     [ProducesResponseType(typeof(StudentDto), 201)]
     [ProducesResponseType(400)]
-    [ProducesResponseType(409)]
     [ProducesResponseType(500)]
     public async Task<ActionResult<StudentDto>> Create([FromBody] CreateStudentDto createStudentDto)
     {
-        // VALIDAÇÃO DE DADOS DE ENTRADA - Camada API
-        // 1. Validação centralizada de todos os campos obrigatórios
-        var errors = StudentRequestValidator.ValidateCreateStudent(createStudentDto);
+        var errors = await studentRequestValidator.ValidateCreateStudentAsync(createStudentDto);
         if (errors.Any())
             return BadRequest(new { message = "Validation failed", errors });
-
-        // 2. Validação customizada de CPF na API (demonstração de integração HTTP)
-        try
-        {
-            if (!await externalCpfValidator.IsCpfValidAsync(createStudentDto.CPF))
-            {
-                return BadRequest(new { 
-                    message = "CPF validation failed", 
-                    error = "CPF não encontrado na base externa (Speedio API)" 
-                });
-            }
-        }
-        catch (Exception ex)
-        {
-            logger.LogWarning(ex, "External CPF validation service unavailable");
-            // Em caso de falha na API externa, continua com a validação local
-        }
 
         try
         {
@@ -100,13 +66,7 @@ public class StudentController(
         }
         catch (InvalidStudentDataException ex)
         {
-            logger.LogWarning(ex, "Invalid student data provided");
-            return Conflict(new { message = ex.Message });
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Error creating student");
-            return StatusCode(500, new { message = "Internal server error" });
+            return BadRequest(new { message = ex.Message });
         }
     }
 
@@ -120,35 +80,15 @@ public class StudentController(
     [ProducesResponseType(typeof(StudentDto), 200)]
     [ProducesResponseType(400)]
     [ProducesResponseType(404)]
-    [ProducesResponseType(409)]
     [ProducesResponseType(500)]
     public async Task<ActionResult<StudentDto>> Update(Guid id, [FromBody] UpdateStudentDto updateStudentDto)
     {
-        // VALIDAÇÃO DE DADOS DE ENTRADA - Camada API
-        // 1. Validação centralizada de todos os campos obrigatórios
         var errors = StudentRequestValidator.ValidateUpdateStudent(updateStudentDto);
         if (errors.Any())
             return BadRequest(new { message = "Validation failed", errors });
 
-        try
-        {
-            var updatedStudent = await studentService.UpdateAsync(id, updateStudentDto);
-            return Ok(updatedStudent);
-        }
-        catch (StudentNotFoundException)
-        {
-            return NotFound(new { message = $"Student with ID {id} not found" });
-        }
-        catch (InvalidStudentDataException ex)
-        {
-            logger.LogWarning(ex, "Invalid student data provided for update");
-            return Conflict(new { message = ex.Message });
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Error updating student with ID {Id}", id);
-            return StatusCode(500, new { message = "Internal server error" });
-        }
+        var updatedStudent = await studentService.UpdateAsync(id, updateStudentDto);
+        return Ok(updatedStudent);
     }
 
     /// <summary>
@@ -162,19 +102,7 @@ public class StudentController(
     [ProducesResponseType(500)]
     public async Task<ActionResult> Delete(Guid id)
     {
-        try
-        {
-            await studentService.DeleteAsync(id);
-            return NoContent();
-        }
-        catch (StudentNotFoundException)
-        {
-            return NotFound(new { message = $"Student with ID {id} not found" });
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Error deleting student with ID {Id}", id);
-            return StatusCode(500, new { message = "Internal server error" });
-        }
+        await studentService.DeleteAsync(id);
+        return NoContent();
     }
 } 

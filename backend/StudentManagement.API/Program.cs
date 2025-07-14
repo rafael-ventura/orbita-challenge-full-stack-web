@@ -7,14 +7,18 @@ using StudentManagement.Infrastructure;
 using StudentManagement.API.Middleware;
 using StudentManagement.Application.Helpers;
 using StudentManagement.Application.Validations;
+using StudentManagement.API.Validations;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using StudentManagement.Infrastructure.Repositories;
+using StudentManagement.Domain.Interfaces.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
 builder.Services.AddControllers()
     .ConfigureApiBehaviorOptions(options =>
     {
-        // Configuração para retornar erros de validação de forma consistente
         options.InvalidModelStateResponseFactory = context =>
         {
             var errors = context.ModelState
@@ -30,8 +34,9 @@ builder.Services.AddControllers()
         };
     });
 
-// Registra o serviço de validação externa de CPF
-builder.Services.AddHttpClient<ExternalCpfValidator>();
+builder.Services.AddHttpClient<IExternalCpfValidator, ExternalCpfValidator>();
+
+builder.Services.AddScoped<StudentRequestValidator>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
@@ -48,7 +53,6 @@ builder.Services.AddSwaggerGen(c =>
         }
     });
     
-    // Adiciona comentários XML para documentação
     var xmlFile = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
     var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
     if (File.Exists(xmlPath))
@@ -57,7 +61,6 @@ builder.Services.AddSwaggerGen(c =>
     }
 });
 
-// Add CORS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
@@ -68,16 +71,35 @@ builder.Services.AddCors(options =>
     });
 });
 
-// Database Configuration
+var jwtSettings = builder.Configuration.GetSection("JwtSettings");
+var secret = jwtSettings["Secret"] ?? throw new InvalidOperationException("JWT Secret not found");
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = false,
+        ValidateAudience = false,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(secret))
+    };
+});
+
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") 
     ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
-// Dependency Injection
 builder.Services.AddStudentManagementInfrastructure(connectionString);
 
 var app = builder.Build();
-
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -91,15 +113,12 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseCors("AllowAll");
-
-// Adiciona middleware de tratamento de exceções
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-
-// Ensure database is created
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();

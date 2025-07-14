@@ -35,7 +35,7 @@ public class ExceptionHandlingMiddleware
         var (statusCode, message) = exception switch
         {
             StudentNotFoundException => (HttpStatusCode.NotFound, exception.Message),
-            InvalidStudentDataException => (HttpStatusCode.Conflict, exception.Message),
+            InvalidStudentDataException => (HttpStatusCode.BadRequest, exception.Message),
             _ => (HttpStatusCode.InternalServerError, "An unexpected error occurred")
         };
 
