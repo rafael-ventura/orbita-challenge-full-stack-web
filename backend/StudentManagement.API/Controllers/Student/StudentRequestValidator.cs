@@ -7,7 +7,7 @@ namespace StudentManagement.API.Validations;
 
 public class StudentRequestValidator
 {
-    public async Task<List<string>> ValidateCreateStudentAsync(CreateStudentDto dto)
+    public Task<List<string>> ValidateCreateStudentAsync(CreateStudentDto dto)
     {
         var errors = new List<string>();
 
@@ -27,7 +27,7 @@ public class StudentRequestValidator
             errors.Add(ErrorMessage.CpfInvalid.GetDescription());
         }
 
-        return errors;
+        return Task.FromResult(errors);
     }
 
     public static List<string> ValidateUpdateStudent(UpdateStudentDto dto)

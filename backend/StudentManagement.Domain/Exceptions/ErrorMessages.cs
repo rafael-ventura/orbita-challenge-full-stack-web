@@ -31,7 +31,7 @@ namespace StudentManagement.Domain.Exceptions
         public static string GetDescription(this ErrorMessage value)
         {
             var field = value.GetType().GetField(value.ToString());
-            var attr = (DescriptionAttribute)Attribute.GetCustomAttribute(field!, typeof(DescriptionAttribute));
+            var attr = (DescriptionAttribute?)Attribute.GetCustomAttribute(field!, typeof(DescriptionAttribute));
             return attr?.Description ?? value.ToString();
         }
     }

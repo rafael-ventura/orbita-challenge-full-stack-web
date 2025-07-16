@@ -15,8 +15,7 @@ namespace StudentManagement.API.Controllers.Student;
 [Route("api/[controller]")]
 public class StudentController(
     IStudentService studentService, 
-    StudentRequestValidator studentRequestValidator,
-    ILogger<StudentController> logger) : ControllerBase
+    StudentRequestValidator studentRequestValidator) : ControllerBase
 {
     /// <summary>
     /// Get all students
