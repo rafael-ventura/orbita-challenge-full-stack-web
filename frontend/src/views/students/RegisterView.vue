@@ -157,7 +157,9 @@ const saveStudent = async () => {
     
     let errorMessage = 'Erro ao cadastrar estudante'
     
-    if (error.response?.data?.message) {
+    if (error.response?.data?.errors && Array.isArray(error.response.data.errors) && error.response.data.errors.length > 0) {
+      errorMessage = error.response.data.errors.join(' | ')
+    } else if (error.response?.data?.message) {
       errorMessage = error.response.data.message
     } else if (error.message) {
       errorMessage = error.message

@@ -4,9 +4,7 @@
       <v-col cols="10" class="d-flex justify-center">
         <v-img src="https://maisaedu.com.br/hubfs/site-grupo-a/logo-mais-a-educacao.svg" class="logo" contain></v-img>
       </v-col>
-      <v-col cols="2" class="d-flex justify-end">
-        <v-btn icon="mdi-logout" variant="text" color="white" size="24" @click="logout"></v-btn>
-      </v-col>
+      <!-- Remover o botão de logout -->
     </v-row>
 
     <v-avatar class="mb-4 avatar-overlay" size="64">
@@ -38,28 +36,11 @@ onMounted(() => {
   
   if (storedName) userName.value = storedName
   if (storedEmail) userEmail.value = storedEmail
-  
-  // Gerar avatar aleatório baseado no email
-  if (storedEmail) {
-    const emailHash = storedEmail.split('@')[0]
-    const avatarId = Math.abs(emailHash.split('').reduce((a, b) => {
-      a = ((a << 5) - a) + b.charCodeAt(0)
-      return a & a
-    }, 0)) % 99 + 1
-    
-    userAvatar.value = `https://randomuser.me/api/portraits/lego/${avatarId}.jpg`
-  }
+  // Avatar sempre mockado
+  userAvatar.value = 'https://randomuser.me/api/portraits/lego/6.jpg'
 })
 
-const logout = () => {
-  console.log('🔴 Usuário deslogado!')
-  
-  // Limpar dados de autenticação
-  AuthService.logout()
-  
-  // Redirecionar para login
-  router.push('/auth/login')
-}
+// Remover a função logout
 </script>
 
 <style scoped lang="scss">
@@ -75,7 +56,7 @@ const logout = () => {
 .logo {
   max-width: 30%;
   display: block;
-  margin: 0 auto;
+  margin-left: -75%;
 }
 
 .avatar-overlay {

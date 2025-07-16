@@ -1,21 +1,20 @@
 <template>
-  <div class="register-bg register-center">
+  <div class="login-bg login-center">
     <v-snackbar v-model="snackbar.show" :color="snackbar.color" timeout="4000">
-      {{ snackbar.message }}
+      {{ snackbar.text }}
     </v-snackbar>
 
     <v-card class="form-card elevation-12">
-      <v-card-title class="form-title pb-0 pt-2">
-        <h2>Cadastro</h2>
+      <v-card-title class="form-title no-padding">
+        <h2 class="no-margin">Login</h2>
       </v-card-title>
       <v-card-text class="pa-0">
         <v-form ref="form" v-model="valid">
-          <v-text-field label="Nome" v-model="user.name" :rules="[rules.required, rules.minLength]" required color="primary" density="compact" class="mt-4 mb-4"/>
-          <v-text-field label="E-mail" v-model="user.email" :rules="[rules.required, rules.email]" required color="primary" density="compact" class="mt-4 mb-4"/>
+          <v-text-field label="E-mail" v-model="credentials.email" :rules="[rules.required, rules.email]" required color="primary" density="compact" class="mt-4 mb-4"/>
           <v-text-field
               label="Senha"
-              v-model="user.password"
-              :rules="[rules.required, rules.password]"
+              v-model="credentials.password"
+              :rules="[rules.required]"
               required
               type="password"
               color="primary"
@@ -25,9 +24,9 @@
         </v-form>
       </v-card-text>
       <v-card-actions class="d-flex justify-space-between pa-0 pt-4">
-        <v-btn color="grey" variant="outlined" @click="goToLogin"> Já tenho uma conta </v-btn>
-        <v-btn color="primary" variant="flat" :disabled="!valid" class="btn-register" @click="registerUser">
-          Cadastrar
+        <v-btn color="grey" variant="outlined" @click="register"> Registrar </v-btn>
+        <v-btn color="primary" variant="flat" :disabled="!valid" class="btn-login" @click="loginUser">
+          Entrar
         </v-btn>
       </v-card-actions>
     </v-card>
@@ -35,24 +34,25 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
-import { useRouter } from 'vue-router'
-import { AuthService } from '@/services'
+import { ref, onMounted, reactive } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
+import { AuthService, NotificationService } from '@/services'
 
 const router = useRouter()
+const route = useRoute()
 
 const snackbar = reactive({
   show: false,
-  message: '',
+  text: '',
   color: 'success'
 })
 
 const form = ref(null)
 const valid = ref(false)
-const user = ref({
-  name: '',
-  email: '',
-  password: ''
+    
+const credentials = ref({
+  email: String(route.query.email || ""),
+  password: String(route.query.password || ""),
 })
 
 const rules = {
@@ -60,56 +60,48 @@ const rules = {
   email: (value) => {
     const pattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     return pattern.test(value) || 'E-mail inválido'
-  },
-  minLength: (value) => value.length >= 2 || 'O nome deve ter pelo menos 2 caracteres.',
-  password: (value) => value.length >= 6 || 'A senha deve ter pelo menos 6 caracteres.'
+  }
 }
 
-const registerUser = async () => {
+const loginUser = async () => {
   if (!form.value?.validate()) return;
+
   try {
-    await AuthService.register(user.value)
+    const response = await AuthService.login(credentials.value)
+    AuthService.setAuthData(response.token, response)
     snackbar.show = true
-    snackbar.message = 'Registration successful!'
+    snackbar.text = 'Login realizado com sucesso!'
     snackbar.color = 'success'
-    setTimeout(() => {
-      router.push({
-        path: '/auth/login',
-        query: {
-          email: user.value.email,
-          password: user.value.password
-        }
-      })
-    }, 1500)
+    router.push('/students')
   } catch (error) {
-    let errorMessage = 'Registration failed.'
-    if (error.response?.data?.errors && Array.isArray(error.response.data.errors) && error.response.data.errors.length > 0) {
-      errorMessage = error.response.data.errors.join(' | ')
-    } else if (error.response?.data?.message) {
-      errorMessage = error.response.data.message
-    } else if (error.message) {
-      errorMessage = error.message
-    }
     snackbar.show = true
-    snackbar.message = errorMessage
+    snackbar.text = 'Erro ao fazer login. Verifique suas credenciais.'
     snackbar.color = 'error'
   }
 }
 
-const goToLogin = () => {
-  router.push('/auth/login')
+const register = () => {
+  router.push('/auth/register')
 }
+
+// Pré-preencher credenciais de teste
+onMounted(() => {
+  if (!credentials.value.email && !credentials.value.password) {
+    credentials.value.email = 'admin@test.com'
+    credentials.value.password = 'admin123'
+  }
+})
 </script>
 
 <style scoped lang="scss">
 @import '@/assets/styles/variables.scss';
 
-.register-bg {
+.login-bg {
   min-height: 100vh;
   background: linear-gradient(135deg, $primary-color 60%, $secondary-color 100%);
 }
 
-.register-center {
+.login-center {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -134,10 +126,21 @@ const goToLogin = () => {
   font-weight: bold;
   text-align: center;
   color: $primary-color;
-  margin-bottom: 0;
+  margin: 0 !important;
+  padding: 0 !important;
+  min-height: unset !important;
 }
 
-.btn-register {
+.no-padding {
+  padding: 0 !important;
+}
+
+.no-margin {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.btn-login {
   background-color: $primary-color !important;
   color: $white-text !important;
   font-weight: bold;

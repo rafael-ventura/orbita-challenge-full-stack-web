@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import LoginView from '../views/LoginView.vue'
+import LoginView from '../views/auth/LoginView.vue'
 import StudentsView from '../views/StudentsView.vue'
+import MainLayout from '../components/MainLayout.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -32,6 +33,7 @@ const router = createRouter({
     // Rotas de estudantes
     {
       path: '/students',
+      component: MainLayout,
       children: [
         {
           path: '',
@@ -57,9 +59,15 @@ const router = createRouter({
     // Rota para página inicial (redirecionamento baseado na autenticação)
     {
       path: '/dashboard',
-      name: 'dashboard',
-      redirect: '/students',
-      meta: { requiresAuth: true }
+      component: MainLayout,
+      children: [
+        {
+          path: '',
+          name: 'dashboard',
+          redirect: '/students',
+          meta: { requiresAuth: true }
+        }
+      ]
     },
     // Rota 404
     {

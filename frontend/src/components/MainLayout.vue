@@ -1,23 +1,21 @@
-<script>
-export default {
-  name: 'App'
-}
-</script>
-
 <template>
-  <router-view />
+  <v-app>
+    <Sidebar v-model:drawer="drawer" />
+    <v-main :class="{ 'main-with-sidebar': drawer, 'main-without-sidebar': !drawer }">
+      <Header @toggleSidebar="toggleSidebar" />
+      <v-container fluid class="main-container">
+        <router-view />
+      </v-container>
+    </v-main>
+  </v-app>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
-import { AuthService } from '@/services'
+import { ref } from 'vue'
 import Sidebar from '@/components/Sidebar.vue'
 import Header from '@/components/Header.vue'
 
 const drawer = ref(true)
-
-const isAuthenticated = computed(() => AuthService.isAuthenticated())
-
 const toggleSidebar = () => {
   drawer.value = !drawer.value
 }
@@ -25,6 +23,16 @@ const toggleSidebar = () => {
 
 <style scoped lang="scss">
 @import '@/assets/styles/app.scss';
+
+.v-main {
+  padding-top: 0 !important;
+  margin-top: 0 !important;
+}
+
+.header-bar {
+  margin-top: 0 !important;
+  top: 0 !important;
+}
 
 .main-with-sidebar {
   margin-left: 300px !important;
@@ -50,34 +58,4 @@ const toggleSidebar = () => {
   margin: 0;
   width: 100%;
 }
-
-// Garantir que o conteúdo se ajuste corretamente
-.v-main__wrap {
-  min-height: 100vh;
-  background-color: #fafafa;
-  width: 100%;
-}
-
-// Melhorar transições
-.v-navigation-drawer {
-  transition: transform 0.3s ease;
-}
-
-// Garantir que o header fique fixo
-.v-app-bar {
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-}
-
-// Garantir que o conteúdo não transborde
-.v-main {
-  overflow-x: hidden;
-}
-
-// Sobrescrever as propriedades CSS do Vuetify
-.v-main {
-  --v-layout-left: 0px !important;
-  --v-layout-right: 0px !important;
-}
-</style>
+</style> 

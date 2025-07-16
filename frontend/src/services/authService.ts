@@ -16,7 +16,7 @@ export class AuthService {
       const response = await api.post('/auth/register', userData)
       return response.data
     } catch (error) {
-      throw new Error('Erro ao registrar usuário')
+      throw error 
     }
   }
 
@@ -57,12 +57,11 @@ export class AuthService {
   static setAuthData(token: string, user: any): void {
     localStorage.setItem('token', token)
     localStorage.setItem('user', JSON.stringify(user))
-    
-    // Salvar dados individuais para fácil acesso
+    // Salvar dados individuais para fácil acesso, independente do formato
     if (user) {
-      localStorage.setItem('userId', user.id?.toString() || '')
-      localStorage.setItem('userName', user.name || '')
-      localStorage.setItem('userEmail', user.email || '')
+      localStorage.setItem('userId', user.id?.toString() || user.Id?.toString() || '')
+      localStorage.setItem('userName', user.name || user.Name || '')
+      localStorage.setItem('userEmail', user.email || user.Email || '')
     }
   }
 } 

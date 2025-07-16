@@ -1,5 +1,5 @@
 <template>
-  <v-app-bar color="white" elevation="1" class="header-bar">
+  <v-app-bar color="white" elevation="1" class="header-bar" style="padding-right: 16px;">
     <v-btn icon @click="emit('toggleSidebar')" class="menu-btn">
       <v-icon>mdi-menu</v-icon>
     </v-btn>
@@ -8,13 +8,25 @@
       <v-icon size="24" color="primary" class="me-2">mdi-school</v-icon>
       A+ Educação
     </v-app-bar-title>
+
+    <v-spacer />
+    <v-btn icon="mdi-logout" variant="text" color="primary" size="24" @click="logout" class="logout-btn" />
+    
   </v-app-bar>
 </template>
 
 <script setup>
 import { defineEmits } from "vue";
+import { useRouter } from 'vue-router'
+import { AuthService } from '@/services'
 
 const emit = defineEmits(["toggleSidebar"]);
+const router = useRouter()
+
+const logout = () => {
+  AuthService.logout()
+  router.push('/auth/login')
+}
 </script>
 
 <style scoped lang="scss">
@@ -43,10 +55,13 @@ const emit = defineEmits(["toggleSidebar"]);
   align-items: center;
 }
 
-// Garantir que o header se ajuste ao layout
 .v-app-bar {
   position: sticky !important;
   top: 0 !important;
   z-index: 1000 !important;
+}
+
+.logout-btn {
+  margin-right: 0;
 }
 </style> 

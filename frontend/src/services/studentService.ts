@@ -68,16 +68,8 @@ export class StudentService {
         throw new Error('Usuário não autenticado. Faça login novamente.')
       }
       
-      if (error.response?.status === 400) {
-        const message = error.response.data?.message || 'Dados inválidos'
-        throw new Error(message)
-      }
-      
-      if (error.response?.status === 404) {
-        throw new Error('Endpoint não encontrado. Verifique se o backend está rodando.')
-      }
-      
-      throw new Error(`Erro ao criar estudante: ${error.response?.data?.message || error.message}`)
+      // Propagar o erro completo para o componente tratar mensagens detalhadas
+      throw error
     }
   }
 
