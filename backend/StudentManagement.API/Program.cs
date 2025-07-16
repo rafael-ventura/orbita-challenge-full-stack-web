@@ -34,7 +34,7 @@ builder.Services.AddControllers()
         };
     });
 
-builder.Services.AddHttpClient<IExternalCpfValidator, ExternalCpfValidator>();
+
 
 builder.Services.AddScoped<StudentRequestValidator>();
 
