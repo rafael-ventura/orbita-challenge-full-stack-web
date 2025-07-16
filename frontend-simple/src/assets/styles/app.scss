@@ -1,0 +1,73 @@
+// Importação das variáveis
+@import './variables.scss';
+
+// Estilos customizados do Vuetify baseados no projeto Nuxt
+.v-btn {
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.v-card {
+  border-radius: 10px;
+}
+
+.v-text-field {
+  background: white;
+  border-radius: 8px;
+}
+
+// Estilos para layout
+.main-expanded {
+  margin-left: 300px;
+  transition: margin-left 0.3s ease;
+}
+
+.main-collapsed {
+  margin-left: 0;
+  transition: margin-left 0.3s ease;
+}
+
+// Estilos gerais
+body {
+  font-family: 'Roboto', sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+// Reset básico
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+// Estilos para o container principal
+.v-container {
+  max-width: none !important;
+  padding: 20px !important;
+}
+
+// Estilos para o v-app
+.v-application {
+  min-height: 100vh;
+}
+
+// Estilos para o v-main
+.v-main {
+  min-height: 100vh;
+}
+
+// Estilos para o v-navigation-drawer
+.v-navigation-drawer {
+  z-index: 1000;
+}
+
+// Estilos para o v-app-bar
+.v-app-bar {
+  z-index: 999;
+}
+
+// Estilos para garantir que o conteúdo não seja cortado
+.v-main__wrap {
+  min-height: 100vh;
+} 
