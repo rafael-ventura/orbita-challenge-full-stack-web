@@ -18,5 +18,6 @@ public class StudentConfiguration : IEntityTypeConfiguration<Student>
         entity.HasIndex(e => e.RA).IsUnique();
         entity.HasIndex(e => e.CPF).IsUnique();
         entity.HasIndex(e => e.Email).IsUnique();
+        entity.HasIndex(e => new { e.RA, e.CPF });
     }
 } 
