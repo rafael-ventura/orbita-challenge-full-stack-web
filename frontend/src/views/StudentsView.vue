@@ -162,18 +162,6 @@ const filteredStudents = computed(() => {
   return students.value.filter(student => {
     console.log('📋 Verificando aluno:', student.name, '| RA:', student.ra, '| CPF:', student.cpf)
     
-    // Busca por nome (case insensitive)
-    if (student.name && student.name.toLowerCase().includes(searchTerm)) {
-      console.log('✅ Encontrado por nome:', student.name)
-      return true
-    }
-    
-    // Busca por email (case insensitive)
-    if (student.email && student.email.toLowerCase().includes(searchTerm)) {
-      console.log('✅ Encontrado por email:', student.email)
-      return true
-    }
-    
     // Busca por RA (exata ou parcial)
     if (student.ra) {
       const studentRa = student.ra.toString().toLowerCase()
