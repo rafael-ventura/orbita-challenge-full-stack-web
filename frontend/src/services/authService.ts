@@ -22,12 +22,22 @@ export class AuthService {
 
   static async logout(): Promise<void> {
     try {
+      // Tentar fazer logout no backend (opcional)
       await api.post('/auth/logout')
-      localStorage.removeItem('token')
-      localStorage.removeItem('user')
     } catch (error) {
-      console.error('Erro ao fazer logout:', error)
+      console.error('Erro ao fazer logout no backend:', error)
+    } finally {
+      // Sempre limpar dados locais
+      this.clearAuthData()
     }
+  }
+
+  static clearAuthData(): void {
+    localStorage.removeItem('token')
+    localStorage.removeItem('userId')
+    localStorage.removeItem('userName')
+    localStorage.removeItem('userEmail')
+    localStorage.removeItem('user')
   }
 
   static isAuthenticated(): boolean {
@@ -47,5 +57,12 @@ export class AuthService {
   static setAuthData(token: string, user: any): void {
     localStorage.setItem('token', token)
     localStorage.setItem('user', JSON.stringify(user))
+    
+    // Salvar dados individuais para fácil acesso
+    if (user) {
+      localStorage.setItem('userId', user.id?.toString() || '')
+      localStorage.setItem('userName', user.name || '')
+      localStorage.setItem('userEmail', user.email || '')
+    }
   }
 } 
