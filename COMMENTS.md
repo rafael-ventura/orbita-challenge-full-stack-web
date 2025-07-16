@@ -6,16 +6,28 @@
 
 A arquitetura segue os princípios da **Clean Architecture**, separando responsabilidades e garantindo modularidade. O projeto está estruturado em 4 camadas principais:
 
-- **Domain Layer** (`StudentManagement.Domain`): Contém as regras centrais do negócio, entidades, interfaces e exceções do domínio.
-- **Application Layer** (`StudentManagement.Application`): Orquestra os casos de uso, implementa a lógica de negócio, DTOs e serviços.
-- **Infrastructure Layer** (`StudentManagement.Infrastructure`): Implementa acesso a dados, Entity Framework Context, repositórios e configurações.
-- **API Layer** (`StudentManagement.API`): Interface HTTP, controllers, validações, middleware e configurações da aplicação.
-- **Test Layer** (`StudentManagement.Tests`): Contém testes unitários e de integração, utilizando xUnit, Moq e FluentAssertions.
+- **Domain Layer** (`StudentManagement.Domain`):
+  No núcleo do sistema está a camada de domínio, onde concentro as regras de negócio, entidades e contratos essenciais. Aqui, defini as entidades `Student` e `User`, além das interfaces de repositório e exceções específicas do domínio. Essa separação garante que a lógica de negócio permaneça isolada de detalhes de infraestrutura, facilitando manutenção e evolução do sistema.
 
-### Frontend:
+- **Application Layer** (`StudentManagement.Application`):
+  A camada de aplicação orquestra os casos de uso do sistema. Implementei serviços responsáveis por coordenar operações de cadastro, consulta, atualização e remoção de alunos, além de autenticação. Os DTOs facilitam a comunicação entre camadas, e os helpers centralizam validações e utilidades, como a validação de CPF e geração de JWT. Essa camada garante que as regras de negócio sejam aplicadas corretamente, sem acoplamento com a infraestrutura.
 
-O projeto foi desenvolvido com **Nuxt 3 + TypeScript + Vuetify**, utilizando componentização, composables para comunicação com a API e SCSS para estilização.
+- **Infrastructure Layer** (`StudentManagement.Infrastructure`):
+  Na infraestrutura, estão as implementações concretas de acesso a dados, utilizando Entity Framework Core com PostgreSQL. Configurei o contexto do banco, mapeamentos das entidades e repositórios que interagem diretamente com a base. Essa camada também centraliza as configurações de injeção de dependências, mantendo o sistema flexível e aderente ao princípio da inversão de dependência.
 
+- **API Layer** (`StudentManagement.API`):
+  A API expõe os endpoints HTTP para interação com o sistema. Implementei controllers para autenticação e gestão de alunos, aplicando validações robustas logo no início dos fluxos. O middleware global de tratamento de exceções garante respostas padronizadas e amigáveis em caso de erro. Além disso, a configuração da aplicação inclui autenticação JWT, documentação Swagger e boas práticas de segurança. O resultado é uma interface clara, segura e fácil de consumir.
+
+- **Test Layer** (`StudentManagement.Tests`):
+  Os testes unitários e de integração validam os principais fluxos do sistema, utilizando xUnit, Moq e FluentAssertions. Cobri desde validações de entrada até operações de repositório, garantindo que as regras de negócio e integrações estejam corretas e confiáveis.
+
+### Frontend (Vue 3 + Vite + Vuetify):
+
+O frontend foi desenvolvido priorizando simplicidade, performance e organização. A estrutura é baseada em:
+
+- **Componentes reutilizáveis** (`src/components`): Elementos Vue desacoplados, como tabelas, barras de busca e cabeçalhos, facilitando a montagem de interfaces responsivas e consistentes.
+- **Views (páginas)** (`src/views`): Cada view representa uma tela da aplicação, como login, listagem e edição de estudantes, orquestrando a exibição dos componentes e a interação com os serviços.
+- **Serviços** (`src/services`): Centralizam a comunicação com a API, autenticação JWT e notificações, mantendo a lógica de acesso a dados isolada dos componentes.
 ---
 
 ## Lista de Bibliotecas de Terceiros Utilizadas

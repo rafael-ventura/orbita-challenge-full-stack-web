@@ -5,7 +5,7 @@ using StudentManagement.Domain.Exceptions;
 
 namespace StudentManagement.API.Validations;
 
-public class StudentRequestValidator(ILogger<StudentRequestValidator> logger)
+public class StudentRequestValidator
 {
     public async Task<List<string>> ValidateCreateStudentAsync(CreateStudentDto dto)
     {

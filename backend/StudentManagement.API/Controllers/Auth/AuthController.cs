@@ -19,7 +19,7 @@ public class AuthController(IAuthService authService) : ControllerBase
             var result = await authService.LoginAsync(loginDto);
             return Ok(result);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             return BadRequest(new { message = ErrorMessage.InvalidCredentials.GetDescription() });
         }
@@ -35,7 +35,7 @@ public class AuthController(IAuthService authService) : ControllerBase
             var result = await authService.RegisterAsync(registerDto);
             return Created(string.Empty, result);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             return BadRequest(new { message = ErrorMessage.UserAlreadyExists.GetDescription() });
         }
