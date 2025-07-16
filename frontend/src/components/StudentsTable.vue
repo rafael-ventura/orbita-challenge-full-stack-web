@@ -6,6 +6,7 @@
       class="elevation-1 custom-table"
       :items-per-page="itemsPerPage"
       item-value="id"
+      :no-data-text="noDataText"
   >
     <template v-slot:item.ra="{ item }">
       {{ item.ra || "N/A" }}
@@ -25,8 +26,22 @@
 
     <template v-slot:item.actions="{ item }">
       <div class="actions-column">
-        <v-btn icon="mdi-pencil" variant="text" @click="editStudent(item)"></v-btn>
-        <v-btn icon="mdi-delete" variant="text" @click="confirmDelete(item)"></v-btn>
+        <v-btn 
+          icon="mdi-pencil" 
+          variant="text" 
+          color="primary"
+          size="small"
+          @click="editStudent(item)"
+          title="Editar"
+        ></v-btn>
+        <v-btn 
+          icon="mdi-delete" 
+          variant="text" 
+          color="error"
+          size="small"
+          @click="confirmDelete(item)"
+          title="Excluir"
+        ></v-btn>
       </div>
     </template>
   </v-data-table>
@@ -34,15 +49,21 @@
 
 <script lang="ts" setup>
 import { useRouter } from 'vue-router'
+import { computed } from 'vue'
 import type { Student } from '@/models/Student'
 import { formatCPF } from '@/utils/formatHelper'
 
-defineProps<{
+const props = defineProps<{
   students: Student[];
   headers: { title: string; key: string; sortable?: boolean }[];
   loading: boolean;
   itemsPerPage: number;
 }>();
+
+// Computed para o texto quando não há dados
+const noDataText = computed(() => {
+  return props.students.length === 0 ? 'Nenhum aluno encontrado' : 'Nenhum dado disponível'
+})
 
 const emit = defineEmits(["editStudent", "deleteStudent"]);
 
@@ -53,8 +74,12 @@ const editStudent = (student: Student) => {
 };
 
 const confirmDelete = (student: Student) => {
-  if (!student.id) return;
-  emit("deleteStudent", Number(student.id));
+  console.log('🗑️ Confirmando exclusão do estudante:', student)
+  if (!student.id) {
+    console.error('❌ ID do estudante não encontrado:', student)
+    return
+  }
+  emit("deleteStudent", student.id);
 };
 </script>
 
@@ -74,9 +99,21 @@ const confirmDelete = (student: Student) => {
 
   .actions-column {
     display: flex;
-    justify-content: left;
-    gap: 10px;
-    margin-left: -6%;
+    justify-content: center;
+    gap: 8px;
+    
+    .v-btn {
+      transition: all 0.3s ease;
+      
+      &:hover {
+        transform: scale(1.1);
+      }
+      
+      &.v-btn--icon {
+        width: 36px;
+        height: 36px;
+      }
+    }
   }
 
   th {

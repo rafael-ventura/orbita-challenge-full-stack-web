@@ -1,6 +1,11 @@
 <template>
   <div class="students-container">
-    <h1 class="mb-4">Consulta de Alunos</h1>
+    <div class="students-header">
+      <h1 class="mb-4">Consulta de Alunos</h1>
+      <p class="text-subtitle-1 text-grey-darken-1 mb-4">
+        Gerencie os dados dos estudantes do sistema
+      </p>
+    </div>
     
     <!-- Header com busca e botão adicionar -->
     <v-card class="pa-4 mb-4" elevation="2">
@@ -8,6 +13,7 @@
         <v-col cols="9">
           <SearchBar
             :searchQuery="search"
+            :loading="loading"
             @update:searchQuery="search = $event"
           />
         </v-col>
@@ -37,19 +43,64 @@
       @deleteStudent="confirmDeleteStudent"
     />
 
-    <!-- Alert quando não há estudantes -->
-    <v-alert v-if="!loading && students.length === 0" type="info" class="mt-4">
-      Nenhum aluno encontrado.
-    </v-alert>
+    <!-- Estado vazio quando não há estudantes -->
+    <div v-if="!loading && students.length === 0" class="empty-state">
+      <v-card class="empty-card" elevation="2">
+        <v-card-text class="text-center pa-8">
+          <v-icon size="80" color="grey-lighten-1" class="mb-4">mdi-account-group-outline</v-icon>
+          <h3 class="text-h5 mb-2 text-grey-darken-1">Nenhum aluno cadastrado</h3>
+          <p class="text-body-1 text-grey-darken-2 mb-6">
+            Comece cadastrando o primeiro aluno do sistema
+          </p>
+          <v-btn 
+            @click="openAddStudentPage" 
+            color="primary" 
+            size="large"
+            prepend-icon="mdi-plus"
+            variant="flat"
+          >
+            Cadastrar Primeiro Aluno
+          </v-btn>
+        </v-card-text>
+      </v-card>
+    </div>
 
     <!-- Dialog de confirmação de exclusão -->
-    <v-dialog v-model="deleteDialog" max-width="400px">
+    <v-dialog v-model="deleteDialog" max-width="500px">
       <v-card>
-        <v-card-title>Confirmação</v-card-title>
-        <v-card-text>Tem certeza que deseja excluir este aluno?</v-card-text>
-        <v-card-actions>
-          <v-btn color="grey" variant="outlined" @click="deleteDialog = false">Cancelar</v-btn>
-          <v-btn color="red" variant="outlined" @click="deleteStudent">Confirmar</v-btn>
+        <v-card-title class="d-flex align-center">
+          <v-icon color="error" class="me-2">mdi-alert-circle</v-icon>
+          Confirmar Exclusão
+        </v-card-title>
+        <v-card-text>
+          <p class="text-body-1 mb-2">
+            Tem certeza que deseja excluir este aluno?
+          </p>
+          <v-alert type="warning" variant="tonal" class="mt-3">
+            <v-icon start>mdi-information</v-icon>
+            Esta ação não pode ser desfeita.
+          </v-alert>
+        </v-card-text>
+        <v-card-actions class="pa-4">
+          <v-spacer></v-spacer>
+          <v-btn 
+            color="grey" 
+            variant="outlined" 
+            @click="deleteDialog = false"
+            size="large"
+          >
+            Cancelar
+          </v-btn>
+          <v-btn 
+            color="error" 
+            variant="flat" 
+            @click="deleteStudent"
+            size="large"
+            :loading="deleting"
+          >
+            <v-icon start>mdi-delete</v-icon>
+            Excluir
+          </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -84,6 +135,7 @@ const snackbar = reactive({
 // Estado reativo
 const students = ref([])
 const loading = ref(false)
+const deleting = ref(false)
 const search = ref('')
 const deleteDialog = ref(false)
 const studentToDelete = ref(null)
@@ -100,15 +152,60 @@ const headers = [
 
 // Computed para filtrar estudantes
 const filteredStudents = computed(() => {
-  if (!search.value) return students.value
+  if (!search.value.trim()) return students.value
   
-  const searchLower = search.value.toLowerCase()
-  return students.value.filter(student => 
-    student.name?.toLowerCase().includes(searchLower) ||
-    student.email?.toLowerCase().includes(searchLower) ||
-    student.ra?.toLowerCase().includes(searchLower) ||
-    student.cpf?.includes(search.value)
-  )
+  const searchTerm = search.value.toLowerCase().trim()
+  const searchNumbers = searchTerm.replace(/\D/g, '') // Remove tudo que não é número
+  
+  console.log('🔍 Buscando por:', searchTerm, '| Números:', searchNumbers)
+  
+  return students.value.filter(student => {
+    console.log('📋 Verificando aluno:', student.name, '| RA:', student.ra, '| CPF:', student.cpf)
+    
+    // Busca por nome (case insensitive)
+    if (student.name && student.name.toLowerCase().includes(searchTerm)) {
+      console.log('✅ Encontrado por nome:', student.name)
+      return true
+    }
+    
+    // Busca por email (case insensitive)
+    if (student.email && student.email.toLowerCase().includes(searchTerm)) {
+      console.log('✅ Encontrado por email:', student.email)
+      return true
+    }
+    
+    // Busca por RA (exata ou parcial)
+    if (student.ra) {
+      const studentRa = student.ra.toString().toLowerCase()
+      const studentRaNumbers = student.ra.toString().replace(/\D/g, '')
+      
+      if (studentRa.includes(searchTerm) || studentRaNumbers.includes(searchNumbers)) {
+        console.log('✅ Encontrado por RA:', student.ra)
+        return true
+      }
+    }
+    
+    // Busca por CPF (com ou sem formatação)
+    if (student.cpf) {
+      const studentCpfNumbers = student.cpf.replace(/\D/g, '')
+      const searchCpfNumbers = searchTerm.replace(/\D/g, '')
+      
+      // Busca por CPF formatado (123.456.789-01)
+      if (student.cpf.toLowerCase().includes(searchTerm)) {
+        console.log('✅ Encontrado por CPF formatado:', student.cpf)
+        return true
+      }
+      
+      // Busca por CPF apenas números
+      if (studentCpfNumbers.includes(searchCpfNumbers)) {
+        console.log('✅ Encontrado por CPF números:', studentCpfNumbers)
+        return true
+      }
+    }
+    
+    console.log('❌ Não encontrado:', student.name)
+    return false
+  })
 })
 
 // Métodos
@@ -117,10 +214,15 @@ const loadStudents = async () => {
   try {
     students.value = await StudentService.getAllStudents()
     console.log('Estudantes carregados:', students.value)
+    
+    // Se não há estudantes, não é um erro - apenas log informativo
+    if (students.value.length === 0) {
+      console.log('Nenhum estudante encontrado - lista vazia')
+    }
   } catch (error) {
     console.error('Erro ao carregar estudantes:', error)
     snackbar.show = true
-    snackbar.message = 'Erro ao carregar lista de estudantes'
+    snackbar.message = error.message || 'Erro ao carregar lista de estudantes'
     snackbar.color = 'error'
   } finally {
     loading.value = false
@@ -136,14 +238,20 @@ const openEditStudentModal = (student) => {
 }
 
 const confirmDeleteStudent = (studentId) => {
+  console.log('🗑️ Tentando excluir estudante ID:', studentId)
   studentToDelete.value = studentId
   deleteDialog.value = true
 }
 
 const deleteStudent = async () => {
-  if (!studentToDelete.value) return
+  if (!studentToDelete.value) {
+    console.error('❌ ID do estudante não fornecido')
+    return
+  }
       
+  deleting.value = true
   try {
+    console.log('🗑️ Excluindo estudante ID:', studentToDelete.value)
     await StudentService.deleteStudent(studentToDelete.value.toString())
     await loadStudents() // Recarregar lista
     snackbar.show = true
@@ -152,11 +260,12 @@ const deleteStudent = async () => {
   } catch (error) {
     console.error('Erro ao excluir estudante:', error)
     snackbar.show = true
-    snackbar.message = 'Erro ao excluir estudante'
+    snackbar.message = error.message || 'Erro ao excluir estudante'
     snackbar.color = 'error'
   } finally {
     deleteDialog.value = false
     studentToDelete.value = null
+    deleting.value = false
   }
 }
 
@@ -170,6 +279,50 @@ onMounted(() => {
 @import '@/assets/styles/variables.scss';
 
 .students-container {
-  padding: 20px;
+  padding: 24px;
+  min-height: 100vh;
+  background-color: #fafafa;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.students-header {
+  margin-bottom: 24px;
+  
+  h1 {
+    color: $primary-color;
+    font-weight: bold;
+    margin-bottom: 8px;
+  }
+  
+  p {
+    color: #666;
+    margin-bottom: 0;
+  }
+}
+
+// Melhorar aparência dos cards
+.v-card {
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+// Melhorar aparência dos botões
+.v-btn {
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+// Estado vazio
+.empty-state {
+  margin-top: 40px;
+  
+  .empty-card {
+    max-width: 500px;
+    margin: 0 auto;
+    border-radius: 16px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  }
 }
 </style> 
