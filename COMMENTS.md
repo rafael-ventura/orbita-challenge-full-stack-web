@@ -62,11 +62,11 @@ O frontend foi desenvolvido priorizando simplicidade, performance e organizaçã
 
 ## O que você melhoraria se tivesse mais tempo
 
-Com mais tempo, investiria em aprimorar a observabilidade e a robustez operacional do sistema. Embora o projeto já conte com logging estruturado via Serilog, seria interessante adicionar métricas de aplicação (como Prometheus) e health checks para monitoramento ativo, facilitando a detecção proativa de problemas em produção.
+Com mais tempo, investiria em aprimorar a observabilidade e a robustez operacional do sistema. Embora o projeto já conte com logging estruturado via Serilog, seria interessante adicionar métricas de aplicação (como Prometheus), facilitando a detecção proativa de problemas em produção.
 
-No aspecto de deploy, exploraria estratégias modernas de entrega contínua e escalabilidade, como a containerização com Docker e orquestração via ECS (AWS) ou Kubernetes, além de considerar opções serverless (como AWS Lambda) para cenários de menor carga ou APIs event-driven. Isso permitiria adaptar o sistema a diferentes demandas de uso, otimizando custos e performance.
+No aspecto de deploy, exploraria estratégias modernas de entrega contínua e escalabilidade, como o com Docker via ECS (AWS) ou Kubernetes, além de considerar opções serverless (como AWS Lambda) para cenários de menor carga ou APIs event-driven (como bots). 
 
-Também priorizaria a implementação de testes automatizados mais abrangentes (incluindo testes end-to-end) e a configuração de pipelines CI/CD para garantir entregas seguras e ágeis. Por fim, investiria em documentação técnica detalhada e exemplos de uso para facilitar a manutenção e a evolução do projeto por outros desenvolvedores.
+Também priorizaria a implementação de testes automatizados mais abrangentes (incluindo testes end-to-end) e a configuração de pipelines CI/CD para garantir entregas seguras.
 
 ---
 
