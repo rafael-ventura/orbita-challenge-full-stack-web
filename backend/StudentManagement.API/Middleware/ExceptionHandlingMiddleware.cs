@@ -36,7 +36,7 @@ public class ExceptionHandlingMiddleware
         {
             StudentNotFoundException => (HttpStatusCode.NotFound, exception.Message),
             InvalidStudentDataException => (HttpStatusCode.BadRequest, exception.Message),
-            _ => (HttpStatusCode.InternalServerError, "An unexpected error occurred")
+            _ => (HttpStatusCode.InternalServerError, ErrorMessage.UnexpectedError.GetDescription())
         };
 
         response.StatusCode = (int)statusCode;

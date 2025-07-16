@@ -1,6 +1,7 @@
 using StudentManagement.Application.DTOs;
 using StudentManagement.Application.Helpers;
 using System.Text.RegularExpressions;
+using StudentManagement.Domain.Exceptions;
 
 namespace StudentManagement.API.Validations;
 
@@ -11,19 +12,19 @@ public class StudentRequestValidator(ILogger<StudentRequestValidator> logger)
         var errors = new List<string>();
 
         if (string.IsNullOrWhiteSpace(dto.Name) || dto.Name.Length > 100)
-            errors.Add("Name is required and must be at most 100 characters.");
+            errors.Add(ErrorMessage.NameRequired.GetDescription());
 
         if (string.IsNullOrWhiteSpace(dto.Email) || dto.Email.Length > 100 || !IsValidEmail(dto.Email))
-            errors.Add("Email is required, must be at most 100 characters and valid.");
+            errors.Add(ErrorMessage.EmailRequired.GetDescription());
 
         if (string.IsNullOrWhiteSpace(dto.RA) || dto.RA.Length > 20 || !IsValidRa(dto.RA))
-            errors.Add("RA is required, must be at most 20 characters and valid.");
+            errors.Add(ErrorMessage.RaRequired.GetDescription());
 
         if (string.IsNullOrWhiteSpace(dto.CPF) || dto.CPF.Length > 14)
-            errors.Add("CPF is required, must be at most 14 characters");
+            errors.Add(ErrorMessage.CpfRequired.GetDescription());
         else if (!CpfValidator.IsValid(dto.CPF))
         {
-            errors.Add("CPF inválido. Verifique se o número está correto.");
+            errors.Add(ErrorMessage.CpfInvalid.GetDescription());
         }
 
         return errors;
@@ -34,10 +35,10 @@ public class StudentRequestValidator(ILogger<StudentRequestValidator> logger)
         var errors = new List<string>();
 
         if (string.IsNullOrWhiteSpace(dto.Name) || dto.Name.Length > 100)
-            errors.Add("Name is required and must be at most 100 characters.");
+            errors.Add(ErrorMessage.NameRequired.GetDescription());
 
         if (string.IsNullOrWhiteSpace(dto.Email) || dto.Email.Length > 100 || !IsValidEmail(dto.Email))
-            errors.Add("Email is required, must be at most 100 characters and valid.");
+            errors.Add(ErrorMessage.EmailRequired.GetDescription());
 
         return errors;
     }

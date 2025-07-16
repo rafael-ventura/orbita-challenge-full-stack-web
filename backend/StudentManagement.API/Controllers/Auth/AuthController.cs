@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using StudentManagement.Application.DTOs;
 using StudentManagement.Application.Interfaces;
+using StudentManagement.Domain.Exceptions;
 
 namespace StudentManagement.API.Controllers;
 
@@ -20,7 +21,7 @@ public class AuthController(IAuthService authService) : ControllerBase
         }
         catch (Exception ex)
         {
-            return BadRequest(new { message = ex.Message });
+            return BadRequest(new { message = ErrorMessage.InvalidCredentials.GetDescription() });
         }
     }
 
@@ -36,7 +37,7 @@ public class AuthController(IAuthService authService) : ControllerBase
         }
         catch (Exception ex)
         {
-            return BadRequest(new { message = ex.Message });
+            return BadRequest(new { message = ErrorMessage.UserAlreadyExists.GetDescription() });
         }
     }
 } 

@@ -5,6 +5,8 @@ using StudentManagement.Domain.Exceptions;
 using StudentManagement.API.Validations;
 using StudentManagement.Application.Helpers;
 using Microsoft.AspNetCore.Authorization;
+using static StudentManagement.Domain.Exceptions.ErrorMessage;
+using static StudentManagement.Domain.Exceptions.ErrorMessageExtensions;
 
 namespace StudentManagement.API.Controllers.Student;
 
@@ -41,7 +43,7 @@ public class StudentController(
     public async Task<ActionResult<StudentDto>> GetById(Guid id)
     {
         var student = await studentService.GetByIdAsync(id);
-        return student != null ? Ok(student) : NotFound(new { message = $"Student with ID {id} not found" });
+        return student != null ? Ok(student) : NotFound(new { message = string.Format(ErrorMessage.StudentNotFound.GetDescription(), id) });
     }
 
     /// <summary>
@@ -57,7 +59,7 @@ public class StudentController(
     {
         var errors = await studentRequestValidator.ValidateCreateStudentAsync(createStudentDto);
         if (errors.Any())
-            return BadRequest(new { message = "Validation failed", errors });
+            return BadRequest(new { message = ErrorMessage.ValidationFailed.GetDescription(), errors });
 
         try
         {
@@ -85,7 +87,7 @@ public class StudentController(
     {
         var errors = StudentRequestValidator.ValidateUpdateStudent(updateStudentDto);
         if (errors.Any())
-            return BadRequest(new { message = "Validation failed", errors });
+            return BadRequest(new { message = ErrorMessage.ValidationFailed.GetDescription(), errors });
 
         var updatedStudent = await studentService.UpdateAsync(id, updateStudentDto);
         return Ok(updatedStudent);
