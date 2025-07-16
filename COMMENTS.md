@@ -4,22 +4,28 @@
 
 ### Backend (.NET 9 + C# + Entity Framework):
 
-A arquitetura segue os princípios da **Clean Architecture**, separando responsabilidades e garantindo modularidade. O projeto está estruturado em 4 camadas principais:
+A arquitetura segue os princípios da **Clean Architecture**, garantindo modularidade, testabilidade e facilidade de evolução. O projeto está estruturado em 5 camadas principais, cada uma com responsabilidades bem definidas:
 
-- **Domain Layer** (`StudentManagement.Domain`):
-  No núcleo do sistema está a camada de domínio, onde concentro as regras de negócio, entidades e contratos essenciais. Aqui, defini as entidades `Student` e `User`, além das interfaces de repositório e exceções específicas do domínio. Essa separação garante que a lógica de negócio permaneça isolada de detalhes de infraestrutura, facilitando manutenção e evolução do sistema.
+- **Domain Layer** (`StudentManagement.Domain`):  
+  No núcleo do sistema, concentro as regras de negócio, entidades e contratos essenciais. As entidades `Student` e `User` foram modeladas para refletir restrições reais (como unicidade de RA e CPF), e as interfaces e exceções específicas do domínio garantem isolamento e clareza das regras.
 
-- **Application Layer** (`StudentManagement.Application`):
-  A camada de aplicação orquestra os casos de uso do sistema. Implementei serviços responsáveis por coordenar operações de cadastro, consulta, atualização e remoção de alunos, além de autenticação. Os DTOs facilitam a comunicação entre camadas, e os helpers centralizam validações e utilidades, como a validação de CPF e geração de JWT. Essa camada garante que as regras de negócio sejam aplicadas corretamente, sem acoplamento com a infraestrutura.
+- **Application Layer** (`StudentManagement.Application`):  
+  Orquestra os casos de uso do sistema, centralizando serviços para cadastro, consulta, atualização e remoção de alunos, além de autenticação. Helpers especializados (como validação de CPF) e DTOs garantem comunicação eficiente e validações robustas, sempre desacopladas da infraestrutura.
 
-- **Infrastructure Layer** (`StudentManagement.Infrastructure`):
-  Na infraestrutura, estão as implementações concretas de acesso a dados, utilizando Entity Framework Core com PostgreSQL. Configurei o contexto do banco, mapeamentos das entidades e repositórios que interagem diretamente com a base. Essa camada também centraliza as configurações de injeção de dependências, mantendo o sistema flexível e aderente ao princípio da inversão de dependência.
+- **Infrastructure Layer** (`StudentManagement.Infrastructure`):  
+  Implementa o acesso a dados com Entity Framework Core e PostgreSQL, incluindo versionamento de migrações e criação de índices (como o índice composto em RA e CPF para alta performance em grandes volumes). O contexto do banco, mapeamentos e repositórios seguem boas práticas de escalabilidade e manutenção. A injeção de dependências é centralizada, facilitando extensões futuras.
 
-- **API Layer** (`StudentManagement.API`):
-  A API expõe os endpoints HTTP para interação com o sistema. Implementei controllers para autenticação e gestão de alunos, aplicando validações robustas logo no início dos fluxos. O middleware global de tratamento de exceções garante respostas padronizadas e amigáveis em caso de erro. Além disso, a configuração da aplicação inclui autenticação JWT, documentação Swagger e boas práticas de segurança. O resultado é uma interface clara, segura e fácil de consumir.
+- **API Layer** (`StudentManagement.API`):  
+  Expõe endpoints HTTP com segurança, com controllers para autenticação e gestão de alunos. As validações são aplicadas logo no início dos fluxos (no corpo da requisição), evitando processamento desnecessário. O middleware global de tratamento de exceções garante respostas padronizadas. A configuração inclui autenticação JWT edocumentação Swagger.
 
-- **Test Layer** (`StudentManagement.Tests`):
-  Os testes unitários e de integração validam os principais fluxos do sistema, utilizando xUnit, Moq e FluentAssertions. Cobri desde validações de entrada até operações de repositório, garantindo que as regras de negócio e integrações estejam corretas e confiáveis.
+- **Test Layer** (`StudentManagement.Tests`):  
+  Testes unitários e de integração cobrem os principais fluxos, utilizando xUnit, Moq e FluentAssertions. Os testes validam desde regras de negócio até integrações reais com o banco, garantindo confiabilidade e facilitando refatorações. O versionamento das migrações também é testado, assegurando que o sistema evolua de forma segura.
+
+**Destaques:**  
+- Estrutura preparada para crescimento do volume de dados (índices, versionamento de migrações).
+- Validações e regras de negócio centralizadas e testadas.
+- Separação clara de responsabilidades, facilitando manutenção e evolução.
+- Preocupação com segurança, performance e experiência do desenvolvedor.
 
 ### Frontend (Vue 3 + Vite + Vuetify):
 
@@ -32,33 +38,35 @@ O frontend foi desenvolvido priorizando simplicidade, performance e organizaçã
 
 ## Lista de Bibliotecas de Terceiros Utilizadas
 
-### Backend:
-- `Microsoft.AspNetCore.OpenApi` (Documentação da API)
-- `Swashbuckle.AspNetCore` (Geração de documentação Swagger)
-- `Microsoft.EntityFrameworkCore` (ORM para acesso ao banco de dados)
-- `Npgsql.EntityFrameworkCore.PostgreSQL` (Driver PostgreSQL para Entity Framework)
-- `xUnit` (Framework de testes unitários)
-- `Moq` (Biblioteca para mocking em testes)
-- `FluentAssertions` (Biblioteca para assertions mais expressivas)
+### Backend
 
-### Frontend:
-- `nuxt` (framework Vue.js)
-- `vuetify` (UI)
-- `sass` (estilização)
-- `vue-router` (navegação)
-- `axios` (requisições HTTP)
+- Microsoft.AspNetCore.Authentication.JwtBearer (autenticação JWT)
+- Microsoft.AspNetCore.OpenApi (OpenAPI/Swagger)
+- Swashbuckle.AspNetCore (Swagger)
+- Serilog.AspNetCore, Serilog.Sinks.Console (logging)
+- Microsoft.EntityFrameworkCore, Npgsql.EntityFrameworkCore.PostgreSQL (ORM e provider PostgreSQL)
+- BCrypt.Net-Next (hash de senha)
+- Moq, xUnit, FluentAssertions (testes)
+
+### Frontend
+
+- Vue 3 (framework principal)
+- Vue Router (roteamento)
+- Vuetify (UI components)
+- Axios (requisições HTTP)
+- @mdi/font (ícones Material Design)
+- Sass, sass-loader (pré-processador CSS)
+- Vite, @vitejs/plugin-vue (build e dev server)
 
 ---
 
-## O que Você Melhoraria se Tivesse Mais Tempo
+## O que você melhoraria se tivesse mais tempo
 
-Se houvesse mais tempo, implementaria as seguintes melhorias para tornar o sistema enterprise-ready:
+Com mais tempo, investiria em aprimorar a observabilidade e a robustez operacional do sistema. Embora o projeto já conte com logging estruturado via Serilog, seria interessante adicionar métricas de aplicação (como Prometheus) e health checks para monitoramento ativo, facilitando a detecção proativa de problemas em produção.
 
-- **Observabilidade**: Logs estruturados com Serilog, métricas com Prometheus/Grafana, health checks e distributed tracing.
-- **Performance**: Cache distribuído com Redis, compressão de respostas, paginação eficiente e otimização de queries.
-- **Segurança**: Autenticação JWT/OAuth2, controle de permissões por role, headers de segurança e criptografia de dados.
-- **DevOps**: Docker, CI/CD automatizado, infraestrutura como código e estratégias de deploy avançadas.
-- **Funcionalidades**: Notificações em tempo real (SignalR), exportação de dados, busca avançada (Elasticsearch) e integração com BI.
+No aspecto de deploy, exploraria estratégias modernas de entrega contínua e escalabilidade, como a containerização com Docker e orquestração via ECS (AWS) ou Kubernetes, além de considerar opções serverless (como AWS Lambda) para cenários de menor carga ou APIs event-driven. Isso permitiria adaptar o sistema a diferentes demandas de uso, otimizando custos e performance.
+
+Também priorizaria a implementação de testes automatizados mais abrangentes (incluindo testes end-to-end) e a configuração de pipelines CI/CD para garantir entregas seguras e ágeis. Por fim, investiria em documentação técnica detalhada e exemplos de uso para facilitar a manutenção e a evolução do projeto por outros desenvolvedores.
 
 ---
 
