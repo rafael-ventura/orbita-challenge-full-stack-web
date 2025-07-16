@@ -10,32 +10,56 @@
     </v-row>
 
     <v-avatar class="mb-4 avatar-overlay" size="64">
-      <v-img src="https://randomuser.me/api/portraits/lego/6.jpg"></v-img>
+      <v-img :src="userAvatar"></v-img>
     </v-avatar>
 
-    <div class="text-white user-name">{{ user?.name || 'Usuário' }}</div>
+    <div class="text-white user-name">{{ userName }}</div>
 
-    <div class="text-white user-email">{{ user?.email || 'usuario@email.com' }}</div>
+    <div class="text-white user-email">{{ userEmail }}</div>
   </v-sheet>
 
   <v-divider></v-divider>
 </template>
 
 <script setup>
-import { useRouter } from "vue-router";
-import { AuthService } from "@/services";
-import { computed } from "vue";
+import { useRouter } from 'vue-router'
+import { onMounted, ref } from 'vue'
+import { AuthService } from '@/services'
 
-const router = useRouter();
+const router = useRouter()
+const userName = ref('Usuário')
+const userEmail = ref('usuario@email.com')
+const userAvatar = ref('https://randomuser.me/api/portraits/lego/6.jpg')
 
-const user = computed(() => AuthService.getUser());
+onMounted(() => {
+  // Carregar dados do usuário do localStorage
+  const storedName = localStorage.getItem('userName')
+  const storedEmail = localStorage.getItem('userEmail')
+  
+  if (storedName) userName.value = storedName
+  if (storedEmail) userEmail.value = storedEmail
+  
+  // Gerar avatar aleatório baseado no email
+  if (storedEmail) {
+    const emailHash = storedEmail.split('@')[0]
+    const avatarId = Math.abs(emailHash.split('').reduce((a, b) => {
+      a = ((a << 5) - a) + b.charCodeAt(0)
+      return a & a
+    }, 0)) % 99 + 1
+    
+    userAvatar.value = `https://randomuser.me/api/portraits/lego/${avatarId}.jpg`
+  }
+})
 
 const logout = () => {
-  console.log("🔴 Usuário deslogado!");
-
-  AuthService.logout();
-  router.push("/auth/login");
-};
+  console.log('🔴 Usuário deslogado!')
+  
+  // Limpar dados de autenticação
+  AuthService.logout()
+  
+  // Redirecionar para login
+  router.push('/auth/login')
+}
 </script>
 
 <style scoped lang="scss">
@@ -67,5 +91,15 @@ const logout = () => {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.user-name {
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.user-email {
+  font-size: 1rem;
+  opacity: 0.9;
 }
 </style> 
