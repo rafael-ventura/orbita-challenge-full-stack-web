@@ -21,7 +21,6 @@ public class StudentControllerIntegrationTests : IDisposable
     private readonly StudentController _controller;
     private readonly ApplicationDbContext _context;
     private readonly Mock<ILogger<StudentController>> _mockLogger;
-    private readonly Mock<IExternalCpfValidator> _mockExternalCpfValidator;
     private readonly Mock<ILogger<StudentRequestValidator>> _mockValidatorLogger;
     private readonly StudentRequestValidator _studentRequestValidator;
 
@@ -43,9 +42,8 @@ public class StudentControllerIntegrationTests : IDisposable
         var studentService = serviceProvider.GetRequiredService<IStudentService>();
         
         _mockLogger = new Mock<ILogger<StudentController>>();
-        _mockExternalCpfValidator = new Mock<IExternalCpfValidator>();
         _mockValidatorLogger = new Mock<ILogger<StudentRequestValidator>>();
-        _studentRequestValidator = new StudentRequestValidator(_mockExternalCpfValidator.Object, _mockValidatorLogger.Object);
+        _studentRequestValidator = new StudentRequestValidator();
         
         _controller = new StudentController(
             studentService, 
@@ -69,10 +67,6 @@ public class StudentControllerIntegrationTests : IDisposable
             RA = "123456789",
             CPF = "52998224725" // CPF válido
         };
-
-        _mockExternalCpfValidator
-            .Setup(x => x.IsCpfValidAsync(createStudentDto.CPF))
-            .ReturnsAsync(true);
 
         // Act
         var result = await _controller.Create(createStudentDto);
@@ -105,10 +99,6 @@ public class StudentControllerIntegrationTests : IDisposable
             RA = "987654321",
             CPF = "52998224725" // CPF válido
         };
-
-        _mockExternalCpfValidator
-            .Setup(x => x.IsCpfValidAsync(createStudentDto.CPF))
-            .ReturnsAsync(true);
 
         var createResult = await _controller.Create(createStudentDto);
         
@@ -158,16 +148,8 @@ public class StudentControllerIntegrationTests : IDisposable
             Name = "Bob Wilson",
             Email = "bob.wilson@example.com",
             RA = "222222222",
-            CPF = "12345678901" // CPF válido diferente
+            CPF = "98765432100" // CPF válido diferente
         };
-
-        _mockExternalCpfValidator
-            .Setup(x => x.IsCpfValidAsync(createStudentDto1.CPF))
-            .ReturnsAsync(true);
-
-        _mockExternalCpfValidator
-            .Setup(x => x.IsCpfValidAsync(createStudentDto2.CPF))
-            .ReturnsAsync(true);
 
         // Act
         await _controller.Create(createStudentDto1);
@@ -202,10 +184,6 @@ public class StudentControllerIntegrationTests : IDisposable
             RA = "333333333",
             CPF = "52998224725" // CPF válido
         };
-
-        _mockExternalCpfValidator
-            .Setup(x => x.IsCpfValidAsync(createStudentDto.CPF))
-            .ReturnsAsync(true);
 
         var createResult = await _controller.Create(createStudentDto);
         
@@ -255,10 +233,6 @@ public class StudentControllerIntegrationTests : IDisposable
             RA = "444444444",
             CPF = "52998224725" // CPF válido
         };
-
-        _mockExternalCpfValidator
-            .Setup(x => x.IsCpfValidAsync(createStudentDto.CPF))
-            .ReturnsAsync(true);
 
         var createResult = await _controller.Create(createStudentDto);
         

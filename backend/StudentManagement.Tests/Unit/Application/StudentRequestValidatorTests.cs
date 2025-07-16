@@ -5,20 +5,19 @@ using StudentManagement.Application.DTOs;
 using StudentManagement.Application.Interfaces;
 using Microsoft.Extensions.Logging;
 using Xunit;
+using StudentManagement.Application.Helpers;
 
 namespace StudentManagement.Tests.Unit.Application;
 
 public class StudentRequestValidatorTests
 {
-    private readonly Mock<IExternalCpfValidator> _mockExternalCpfValidator;
     private readonly Mock<ILogger<StudentRequestValidator>> _mockLogger;
     private readonly StudentRequestValidator _validator;
 
     public StudentRequestValidatorTests()
     {
-        _mockExternalCpfValidator = new Mock<IExternalCpfValidator>();
         _mockLogger = new Mock<ILogger<StudentRequestValidator>>();
-        _validator = new StudentRequestValidator(_mockExternalCpfValidator.Object, _mockLogger.Object);
+        _validator = new StudentRequestValidator();
     }
 
     [Fact]
@@ -33,16 +32,11 @@ public class StudentRequestValidatorTests
             CPF = "52998224725"
         };
 
-        _mockExternalCpfValidator
-            .Setup(x => x.IsCpfValidAsync(validDto.CPF))
-            .ReturnsAsync(true);
-
         // Act
         var errors = await _validator.ValidateCreateStudentAsync(validDto);
 
         // Assert
         errors.Should().BeEmpty();
-        _mockExternalCpfValidator.Verify(x => x.IsCpfValidAsync(validDto.CPF), Times.Once);
     }
 
     [Fact]
@@ -61,63 +55,14 @@ public class StudentRequestValidatorTests
         var errors = await _validator.ValidateCreateStudentAsync(invalidDto);
 
         // Assert
-        errors.Should().Contain("CPF is required, must be at most 14 characters and valid.");
-        _mockExternalCpfValidator.Verify(x => x.IsCpfValidAsync(It.IsAny<string>()), Times.Never);
+        errors.Should().Contain("CPF inválido. Verifique se o número está correto.");
     }
 
-    [Fact]
-    public async Task ValidateCreateStudentAsync_WithValidCPFButExternalValidationFails_ShouldReturnError()
-    {
-        // Arrange
-        var validDto = new CreateStudentDto
-        {
-            Name = "João Silva",
-            Email = "joao@example.com",
-            RA = "123456",
-            CPF = "52998224725" // CPF válido localmente
-        };
-
-        _mockExternalCpfValidator
-            .Setup(x => x.IsCpfValidAsync(validDto.CPF))
-            .ReturnsAsync(false);
-
-        // Act
-        var errors = await _validator.ValidateCreateStudentAsync(validDto);
-
-        // Assert
-        errors.Should().Contain("CPF não encontrado na base externa (Speedio API).");
-        _mockExternalCpfValidator.Verify(x => x.IsCpfValidAsync(validDto.CPF), Times.Once);
-    }
-
-    [Fact]
-    public async Task ValidateCreateStudentAsync_WithExternalValidationException_ShouldNotBlockCreation()
-    {
-        // Arrange
-        var validDto = new CreateStudentDto
-        {
-            Name = "João Silva",
-            Email = "joao@example.com",
-            RA = "123456",
-            CPF = "52998224725" // CPF válido localmente
-        };
-
-        _mockExternalCpfValidator
-            .Setup(x => x.IsCpfValidAsync(validDto.CPF))
-            .ThrowsAsync(new HttpRequestException("API externa indisponível"));
-
-        // Act
-        var errors = await _validator.ValidateCreateStudentAsync(validDto);
-
-        // Assert
-        errors.Should().BeEmpty(); // Não deve bloquear se a API externa falhar
-        _mockExternalCpfValidator.Verify(x => x.IsCpfValidAsync(validDto.CPF), Times.Once);
-        _mockLogger.Verify(x => x.Log(
-            LogLevel.Warning,
-            It.IsAny<EventId>(),
-            It.Is<It.IsAnyType>((v, t) => true),
-            It.IsAny<Exception>(),
-            It.IsAny<Func<It.IsAnyType, Exception?, string>>()), Times.Once);
-    }
+    // Remover testes que dependem de validação externa e logger
+    // [Fact]
+    // public async Task ValidateCreateStudentAsync_WithValidCPFButExternalValidationFails_ShouldReturnError() { ... }
+    // [Fact]
+    // public async Task ValidateCreateStudentAsync_WithExternalValidationException_ShouldNotBlockCreation() { ... }
 
     [Fact]
     public async Task ValidateCreateStudentAsync_WithEmptyName_ShouldReturnError()
@@ -130,10 +75,6 @@ public class StudentRequestValidatorTests
             RA = "123456",
             CPF = "52998224725"
         };
-
-        _mockExternalCpfValidator
-            .Setup(x => x.IsCpfValidAsync(invalidDto.CPF))
-            .ReturnsAsync(true);
 
         // Act
         var errors = await _validator.ValidateCreateStudentAsync(invalidDto);
@@ -154,10 +95,6 @@ public class StudentRequestValidatorTests
             CPF = "52998224725"
         };
 
-        _mockExternalCpfValidator
-            .Setup(x => x.IsCpfValidAsync(invalidDto.CPF))
-            .ReturnsAsync(true);
-
         // Act
         var errors = await _validator.ValidateCreateStudentAsync(invalidDto);
 
@@ -176,10 +113,6 @@ public class StudentRequestValidatorTests
             RA = "123", // RA muito curto
             CPF = "52998224725"
         };
-
-        _mockExternalCpfValidator
-            .Setup(x => x.IsCpfValidAsync(invalidDto.CPF))
-            .ReturnsAsync(true);
 
         // Act
         var errors = await _validator.ValidateCreateStudentAsync(invalidDto);
@@ -231,7 +164,7 @@ public class StudentRequestValidatorTests
     public void IsValidCPF_WithVariousCPFs_ShouldReturnExpectedResult(string cpf, bool expected)
     {
         // Act
-        var result = StudentRequestValidator.IsValidCpf(cpf);
+        var result = CpfValidator.IsValid(cpf);
 
         // Assert
         result.Should().Be(expected);

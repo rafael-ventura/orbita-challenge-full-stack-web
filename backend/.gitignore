@@ -138,9 +138,6 @@ $RECYCLE.BIN/
 
 _NCrunch*
 
-# Entity Framework Core
-**/Migrations/
-
 # User secrets & configs
 secrets.json
 appsettings.Development.json
