@@ -2,13 +2,13 @@
   <v-text-field
       :model-value="searchQuery"
       @update:model-value="updateSearch"
-      label="Pesquise por Nome ou E-mail"
+      label="Pesquise por RA ou CPF"
       variant="outlined"
       dense
       hide-details
       append-inner-icon="mdi-magnify"
       clearable
-      placeholder="Digite nome ou email do aluno..."
+      placeholder="Digite RA ou CPF do aluno..."
       class="search-field"
       :loading="loading"
   />
