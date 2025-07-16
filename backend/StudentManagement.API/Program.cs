@@ -13,116 +13,139 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using StudentManagement.Infrastructure.Repositories;
 using StudentManagement.Domain.Interfaces.Repositories;
+using Serilog;
 
-var builder = WebApplication.CreateBuilder(args);
+// Add Serilog configuration at the very top
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.Console()
+    .WriteTo.File("logs/log.txt", rollingInterval: RollingInterval.Day)
+    .Enrich.FromLogContext()
+    .CreateLogger();
 
-builder.Services.AddControllers()
-    .ConfigureApiBehaviorOptions(options =>
-    {
-        options.InvalidModelStateResponseFactory = context =>
+try
+{
+    Log.Information("Starting up StudentManagement API");
+    var builder = WebApplication.CreateBuilder(args);
+
+    // Replace default logging with Serilog
+    builder.Host.UseSerilog();
+
+    builder.Services.AddControllers()
+        .ConfigureApiBehaviorOptions(options =>
         {
-            var errors = context.ModelState
-                .Where(x => x.Value?.Errors.Count > 0)
-                .SelectMany(x => x.Value!.Errors.Select(e => e.ErrorMessage))
-                .ToList();
-            
-            return new Microsoft.AspNetCore.Mvc.BadRequestObjectResult(new 
-            { 
-                message = "Validation failed", 
-                errors 
-            });
+            options.InvalidModelStateResponseFactory = context =>
+            {
+                var errors = context.ModelState
+                    .Where(x => x.Value?.Errors.Count > 0)
+                    .SelectMany(x => x.Value!.Errors.Select(e => e.ErrorMessage))
+                    .ToList();
+                
+                return new Microsoft.AspNetCore.Mvc.BadRequestObjectResult(new 
+                { 
+                    message = "Validation failed", 
+                    errors 
+                });
+            };
+        });
+
+
+
+    builder.Services.AddScoped<StudentRequestValidator>();
+
+    builder.Services.AddEndpointsApiExplorer();
+    builder.Services.AddSwaggerGen(c =>
+    {
+        c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+        {
+            Title = "Student Management API",
+            Version = "v1",
+            Description = "API para gerenciamento de estudantes - A+ Educação Challenge",
+            Contact = new Microsoft.OpenApi.Models.OpenApiContact
+            {
+                Name = "Development Team",
+                Email = "dev@example.com"
+            }
+        });
+        
+        var xmlFile = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
+        var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+        if (File.Exists(xmlPath))
+        {
+            c.IncludeXmlComments(xmlPath);
+        }
+    });
+
+    builder.Services.AddCors(options =>
+    {
+        options.AddPolicy("AllowAll", policy =>
+        {
+            policy.AllowAnyOrigin()
+                  .AllowAnyMethod()
+                  .AllowAnyHeader();
+        });
+    });
+
+    var jwtSettings = builder.Configuration.GetSection("JwtSettings");
+    var secret = jwtSettings["Secret"] ?? throw new InvalidOperationException("JWT Secret not found");
+
+    builder.Services.AddAuthentication(options =>
+    {
+        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    })
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = false,
+            ValidateAudience = false,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(secret))
         };
     });
 
+    builder.Services.AddScoped<IAuthService, AuthService>();
+    builder.Services.AddScoped<IUserRepository, UserRepository>();
 
+    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") 
+        ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
-builder.Services.AddScoped<StudentRequestValidator>();
+    builder.Services.AddStudentManagementInfrastructure(connectionString);
 
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c =>
-{
-    c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+    var app = builder.Build();
+    if (app.Environment.IsDevelopment())
     {
-        Title = "Student Management API",
-        Version = "v1",
-        Description = "API para gerenciamento de estudantes - A+ Educação Challenge",
-        Contact = new Microsoft.OpenApi.Models.OpenApiContact
+        app.UseSwagger();
+        app.UseSwaggerUI(c =>
         {
-            Name = "Development Team",
-            Email = "dev@example.com"
-        }
-    });
-    
-    var xmlFile = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
-    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
-    if (File.Exists(xmlPath))
-    {
-        c.IncludeXmlComments(xmlPath);
+            c.SwaggerEndpoint("/swagger/v1/swagger.json", "Student Management API v1");
+            c.RoutePrefix = "swagger";
+        });
     }
-});
 
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowAll", policy =>
+    app.UseHttpsRedirection();
+
+    app.UseCors("AllowAll");
+    app.UseMiddleware<ExceptionHandlingMiddleware>();
+
+    app.UseAuthentication();
+    app.UseAuthorization();
+
+    app.MapControllers();
+    using (var scope = app.Services.CreateScope())
     {
-        policy.AllowAnyOrigin()
-              .AllowAnyMethod()
-              .AllowAnyHeader();
-    });
-});
+        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        context.Database.EnsureCreated();
+    }
 
-var jwtSettings = builder.Configuration.GetSection("JwtSettings");
-var secret = jwtSettings["Secret"] ?? throw new InvalidOperationException("JWT Secret not found");
-
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-.AddJwtBearer(options =>
-{
-    options.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidateIssuer = false,
-        ValidateAudience = false,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(secret))
-    };
-});
-
-builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddScoped<IUserRepository, UserRepository>();
-
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") 
-    ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
-
-builder.Services.AddStudentManagementInfrastructure(connectionString);
-
-var app = builder.Build();
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI(c =>
-    {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Student Management API v1");
-        c.RoutePrefix = "swagger";
-    });
+    app.Run();
 }
-
-app.UseHttpsRedirection();
-
-app.UseCors("AllowAll");
-app.UseMiddleware<ExceptionHandlingMiddleware>();
-
-app.UseAuthentication();
-app.UseAuthorization();
-
-app.MapControllers();
-using (var scope = app.Services.CreateScope())
+catch (Exception ex)
 {
-    var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    context.Database.EnsureCreated();
+    Log.Fatal(ex, "Application start-up failed");
 }
-
-app.Run();
+finally
+{
+    Log.CloseAndFlush();
+}
